@@ -1,7 +1,7 @@
 import tornado.ioloop
 import tornado.web
 import tornado.options
-from to_hi_re.handlers.todoist import TodoistHandler
+from to_hi_re.handlers.todoist_handler import TodoistHandler
 
 
 class MainHandler(tornado.web.RequestHandler):

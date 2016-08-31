@@ -4,7 +4,7 @@ import hashlib
 import base64
 
 import tornado.log
-import todoist
+import todoist_handler
 
 from tornado.web import RequestHandler
 from tornado.options import options
@@ -56,7 +56,7 @@ rules = (rule_label_pr_create_subtasks, )
 
 class TodoistHandler(RequestHandler):
     def initialize(self):
-        self.client = todoist.TodoistAPI(options.TODOIST_ACCESS_TOKEN)
+        self.client = todoist_handler.TodoistAPI(options.TODOIST_ACCESS_TOKEN)
 
     @staticmethod
     def _verify_hmac(self, body, secret, received_signature):
