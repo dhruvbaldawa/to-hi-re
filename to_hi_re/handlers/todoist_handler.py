@@ -4,10 +4,16 @@ import hashlib
 import base64
 
 import tornado.log
-import todoist_handler
+import todoist
 
 from tornado.web import RequestHandler
-from tornado.options import options
+from tornado.options import options, define
+
+
+define('todoist_access_token')
+define('todoist_client_secret')
+define('todoist_client_id')
+
 
 class Events(object):
     ITEM_ADDED = 'item:added'
@@ -33,18 +39,20 @@ class Events(object):
 
 
 def rule_label_pr_create_subtasks(client, payload):
-    def has_label_pr(label_ids):
-        return any(client.labels.get_by_id(label_id)['name'] == 'pr' for label_id in data['labels'])
+    PR_LABEL_ID = 742512
+
+    def has_label_pr(task):
+        return PR_LABEL_ID in task['labels']
 
     def add_subtasks(task):
-        for content in ('Deployed', 'Merged', 'PR', 'Implement', 'Designed', 'Pre-requisites'):
+        for content in ('Pre-requisites', 'Design', 'Implemented', 'PR', 'Merged', 'Deployed'):
             client.add_item(content=content, item_order=task['item_order'], indent=2)
         return True
 
     def remove_label_pr(task):
-        label_id = (label['id'] for label in client.labels.all() if label['name'] == 'pr')
-        task['labels'].remove(label_id)
-        client.items.update(task['id'], **task)
+        task['labels'].remove(PR_LABEL_ID)
+        client.items.update(task['id'], labels=task['labels'])
+        return True
 
     if payload['event_name'] in { Events.ITEM_ADDED, Events.ITEM_UPDATED }:
         data = payload['event_data']
@@ -56,20 +64,22 @@ rules = (rule_label_pr_create_subtasks, )
 
 class TodoistHandler(RequestHandler):
     def initialize(self):
-        self.client = todoist_handler.TodoistAPI(options.TODOIST_ACCESS_TOKEN)
+        self.client = todoist.TodoistAPI(options.todoist_access_token)
+        self.client.sync()
 
-    @staticmethod
     def _verify_hmac(self, body, secret, received_signature):
-        message = bytes("Message").encode('utf-8')
-        secret = bytes("secret").encode('utf-8')
+        message = bytes(body).encode('utf-8')
+        secret = bytes(secret).encode('utf-8')
 
         signature = base64.b64encode(hmac.new(secret, message, digestmod=hashlib.sha256).digest())
         return signature == received_signature
 
     def prepare(self):
         if not self._verify_hmac(self.request.body,
-                                 options.TODOIST_CLIENT_SECRET,
+                                 options.todoist_client_secret,
                                  self.request.headers['X-Todoist-Hmac-SHA256']):
+            tornado.log.app_log.info(self.request.body)
+            tornado.log.app_log.info(self.request.headers['X-Todoist-Hmac-SHA256'])
             tornado.log.app_log.error('HMAC mismatch occured')
             self.finish()
 
@@ -83,5 +93,5 @@ class TodoistHandler(RequestHandler):
         print(self.json)
         for rule in rules:
             rule(self.client, self.json)
-
+        self.client.commit()
         self.write('')

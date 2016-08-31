@@ -1,6 +1,7 @@
 import tornado.ioloop
 import tornado.web
 import tornado.options
+
 from to_hi_re.handlers.todoist_handler import TodoistHandler
 
 
@@ -14,6 +15,7 @@ def make_app():
         (r"/", MainHandler),
         (r"/webhooks/todoist", TodoistHandler)
     ])
+
 
 if __name__ == "__main__":
     app = make_app()
