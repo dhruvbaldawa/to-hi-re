@@ -2,11 +2,12 @@ import hmac
 import json
 import hashlib
 import base64
+
 import tornado.log
+import todoist
+
 from tornado.web import RequestHandler
-
-CLIENT_SECRET = ''
-
+from tornado.options import options
 
 class Events(object):
     ITEM_ADDED = 'item:added'
@@ -31,10 +32,33 @@ class Events(object):
     REMINDER_FIRED = 'reminder:fired'
 
 
-rules = []
+def rule_label_pr_create_subtasks(client, payload):
+    def has_label_pr(label_ids):
+        return any(client.labels.get_by_id(label_id)['name'] == 'pr' for label_id in data['labels'])
+
+    def add_subtasks(task):
+        for content in ('Deployed', 'Merged', 'PR', 'Implement', 'Designed', 'Pre-requisites'):
+            client.add_item(content=content, item_order=task['item_order'], indent=2)
+        return True
+
+    def remove_label_pr(task):
+        label_id = (label['id'] for label in client.labels.all() if label['name'] == 'pr')
+        task['labels'].remove(label_id)
+        client.items.update(task['id'], **task)
+
+    if payload['event_name'] in { Events.ITEM_ADDED, Events.ITEM_UPDATED }:
+        data = payload['event_data']
+        return has_label_pr(data) and add_subtasks(data) and remove_label_pr(data)
+
+
+rules = (rule_label_pr_create_subtasks, )
 
 
 class TodoistHandler(RequestHandler):
+    def initialize(self):
+        self.client = todoist.TodoistAPI(options.TODOIST_ACCESS_TOKEN)
+
+    @staticmethod
     def _verify_hmac(self, body, secret, received_signature):
         message = bytes("Message").encode('utf-8')
         secret = bytes("secret").encode('utf-8')
@@ -44,7 +68,7 @@ class TodoistHandler(RequestHandler):
 
     def prepare(self):
         if not self._verify_hmac(self.request.body,
-                                 CLIENT_SECRET,
+                                 options.TODOIST_CLIENT_SECRET,
                                  self.request.headers['X-Todoist-Hmac-SHA256']):
             tornado.log.app_log.error('HMAC mismatch occured')
             self.finish()
@@ -57,4 +81,7 @@ class TodoistHandler(RequestHandler):
 
     def post(self, *args, **kwargs):
         print(self.json)
+        for rule in rules:
+            rule(self.client, self.json)
+
         self.write('')
