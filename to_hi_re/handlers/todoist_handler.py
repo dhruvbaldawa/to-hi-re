@@ -78,8 +78,6 @@ class TodoistHandler(RequestHandler):
         if not self._verify_hmac(self.request.body,
                                  options.todoist_client_secret,
                                  self.request.headers['X-Todoist-Hmac-SHA256']):
-            tornado.log.app_log.info(self.request.body)
-            tornado.log.app_log.info(self.request.headers['X-Todoist-Hmac-SHA256'])
             tornado.log.app_log.error('HMAC mismatch occured')
             self.finish()
 
