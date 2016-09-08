@@ -39,10 +39,15 @@ class Events(object):
 
 
 def rule_label_pr_create_subtasks(client, payload):
-    PR_LABEL_ID = 742512
+    TASK_PREFIX = '[pr]'
 
-    def has_label_pr(task):
-        return PR_LABEL_ID in task['labels']
+    def has_prefix_pr(task):
+        return task['content'].startswith(TASK_PREFIX)
+
+    def remove_prefix_pr(task):
+        task['content'] = task['content'][len(TASK_PREFIX):]
+        client.items.update(task['id'], content=task['content'])
+        return True
 
     def add_subtasks(task):
         item_offset = 0
@@ -55,14 +60,9 @@ def rule_label_pr_create_subtasks(client, payload):
             item_offset += 1
         return True
 
-    def remove_label_pr(task):
-        task['labels'].remove(PR_LABEL_ID)
-        client.items.update(task['id'], labels=task['labels'])
-        return True
-
     if payload['event_name'] in { Events.ITEM_ADDED, Events.ITEM_UPDATED }:
         data = payload['event_data']
-        return has_label_pr(data) and add_subtasks(data) and remove_label_pr(data)
+        return has_prefix_pr(data) and remove_prefix_pr(data) and add_subtasks(data)
 
 
 rules = (rule_label_pr_create_subtasks, )
