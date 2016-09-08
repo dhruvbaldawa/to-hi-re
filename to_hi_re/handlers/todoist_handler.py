@@ -45,8 +45,14 @@ def rule_label_pr_create_subtasks(client, payload):
         return PR_LABEL_ID in task['labels']
 
     def add_subtasks(task):
+        item_offset = 0
         for content in ('Pre-requisites', 'Design', 'Implemented', 'PR', 'Merged', 'Deployed'):
-            client.add_item(content=content, item_order=task['item_order'], indent=2)
+            title = '{} - {}'.format(task['content'], content)
+            client.add_item(content=title,
+                            project_id=task['project_id'],
+                            item_order=task['item_order'] + item_offset,
+                            indent=task['indent'] + 1)
+            item_offset += 1
         return True
 
     def remove_label_pr(task):
@@ -91,5 +97,6 @@ class TodoistHandler(RequestHandler):
         print(self.json)
         for rule in rules:
             rule(self.client, self.json)
-        self.client.commit()
+            self.client.commit()
+            self.client.sync()
         self.write('')
