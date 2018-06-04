@@ -1,0 +1,14 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+requests = "==2.11.1"
+todoist-python = "==7.0.13"
+tornado = "==4.4.1"
+
+[dev-packages]
+
+[requires]
+python_version = "3.6"

@@ -1,0 +1,45 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "225e68e34741edb1263ad7bfc091ee509eaf5e0c7320a7db8a3eebee055d1fbf"
+        },
+        "pipfile-spec": 6,
+        "requires": {
+            "python_version": "3.6"
+        },
+        "sources": [
+            {
+                "name": "pypi",
+                "url": "https://pypi.org/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "requests": {
+            "hashes": [
+                "sha256:545c4855cd9d7c12671444326337013766f4eea6068c3f0307fb2dc2696d580e",
+                "sha256:5acf980358283faba0b897c73959cecf8b841205bb4b2ad3ef545f46eae1a133"
+            ],
+            "index": "pypi",
+            "version": "==2.11.1"
+        },
+        "todoist-python": {
+            "hashes": [
+                "sha256:eb9e395c2454ba9cb63b5e33d7c3bccb909573fb012bed8fbdf3ec3462d597ab"
+            ],
+            "index": "pypi",
+            "version": "==7.0.13"
+        },
+        "tornado": {
+            "hashes": [
+                "sha256:371d0cf3d56c47accc66116a77ad558d76eebaa8458a6b677af71ca606522146",
+                "sha256:3b57939955588055be29c93c2ea533e44ee8ee75a6c1dd14f103eef92d01829f",
+                "sha256:af9ee9f93109a98526a29cdea756802f1aab7897def0330532af4c4337895565"
+            ],
+            "index": "pypi",
+            "version": "==4.4.1"
+        }
+    },
+    "develop": {}
+}
