@@ -3,6 +3,7 @@ import json
 import hashlib
 import base64
 
+import requests
 import tornado.log
 import todoist
 
@@ -38,34 +39,7 @@ class Events(object):
     REMINDER_FIRED = 'reminder:fired'
 
 
-def rule_label_pr_create_subtasks(client, payload):
-    TASK_PREFIX = '[pr]'
-
-    def has_prefix_pr(task):
-        return task['content'].startswith(TASK_PREFIX)
-
-    def remove_prefix_pr(task):
-        task['content'] = task['content'][len(TASK_PREFIX):]
-        client.items.update(task['id'], content=task['content'])
-        return True
-
-    def add_subtasks(task):
-        item_offset = 0
-        for content in ('Pre-requisites', 'Design', 'Implemented', 'PR', 'Merged', 'Deployed'):
-            title = '{} - {}'.format(task['content'], content)
-            client.add_item(content=title,
-                            project_id=task['project_id'],
-                            item_order=task['item_order'] + item_offset,
-                            indent=task['indent'] + 1)
-            item_offset += 1
-        return True
-
-    if payload['event_name'] in { Events.ITEM_ADDED, Events.ITEM_UPDATED }:
-        data = payload['event_data']
-        return has_prefix_pr(data) and remove_prefix_pr(data) and add_subtasks(data)
-
-
-rules = (rule_label_pr_create_subtasks, )
+rules = []
 
 
 class TodoistHandler(RequestHandler):
@@ -74,10 +48,9 @@ class TodoistHandler(RequestHandler):
         self.client.sync()
 
     def _verify_hmac(self, body, secret, received_signature):
-        message = bytes(body).encode('utf-8')
-        secret = bytes(secret).encode('utf-8')
-
-        signature = base64.b64encode(hmac.new(secret, message, digestmod=hashlib.sha256).digest())
+        received_signature = bytes(received_signature, 'utf-8')
+        secret = bytes(secret, 'utf-8')
+        signature = base64.b64encode(hmac.new(secret, body, digestmod=hashlib.sha256).digest())
         return signature == received_signature
 
     def prepare(self):
@@ -100,3 +73,18 @@ class TodoistHandler(RequestHandler):
             self.client.commit()
             self.client.sync()
         self.write('')
+
+
+class TodoistLoginHandler(RequestHandler):
+    TODOIST_TOKEN_API_URL = 'https://todoist.com/api/access_tokens/migrate_personal_token'
+
+    def post(self, *args, **kwargs):
+        personal_token = self.get_body_argument('personal_token')
+
+        resp = requests.post(self.TODOIST_TOKEN_API_URL, json={
+            'client_id': options.todoist_client_id,
+            'client_secret': options.todoist_client_secret,
+            'personal_token': personal_token,
+            'scope': 'data:read_write,data:delete',
+        })
+        self.write(resp.json())

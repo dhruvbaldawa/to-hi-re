@@ -9,6 +9,8 @@ todoist-python = "==7.0.13"
 tornado = "==4.4.1"
 
 [dev-packages]
+ipython = "*"
+ipdb = "*"
 
 [requires]
 python_version = "3.6"

@@ -2,7 +2,7 @@ import tornado.ioloop
 import tornado.web
 import tornado.options
 
-from to_hi_re.handlers.todoist_handler import TodoistHandler
+from to_hi_re.handlers.todoist_handler import TodoistHandler, TodoistLoginHandler
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -13,7 +13,8 @@ class MainHandler(tornado.web.RequestHandler):
 def make_app():
     return tornado.web.Application([
         (r"/", MainHandler),
-        (r"/webhooks/todoist", TodoistHandler)
+        (r"/todoist/webhook/?", TodoistHandler),
+        (r"/todoist/oauth_token/?", TodoistLoginHandler),
     ], debug=True)
 
 
