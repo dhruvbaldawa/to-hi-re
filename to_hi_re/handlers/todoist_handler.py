@@ -10,36 +10,14 @@ import todoist
 from tornado.web import RequestHandler
 from tornado.options import options, define
 
+from to_hi_re.rules.todoist import rule_tickler_update_text_priority
 
 define('todoist_access_token')
 define('todoist_client_secret')
 define('todoist_client_id')
 
 
-class Events(object):
-    ITEM_ADDED = 'item:added'
-    ITEM_UPDATED = 'item:updated'
-    ITEM_DELETED = 'item:deleted'
-    ITEM_COMPLETED = 'item:completed'
-    ITEM_UNCOMPLETED = 'item:uncompleted'
-    NOTE_ADDED = 'note:added'
-    NOTE_UPDATED = 'note:updated'
-    NOTE_DELETED = 'note:deleted'
-    PROJECT_ADDED = 'project:added'
-    PROJECT_UPDATED = 'project:updated'
-    PROJECT_DELETED = 'project:deleted'
-    PROJECT_ARCHIVED = 'project:archived'
-    PROJECT_UNARCHIVED = 'project:unarchived'
-    LABEL_ADDED = 'label:added'
-    LABEL_DELETED = 'label:deleted'
-    LABEL_UPDATED = 'label:updated'
-    FILTER_ADDED = 'filter:added'
-    FILTER_DELETED = 'filter:deleted'
-    FILTER_UPDATED = 'filter:updated'
-    REMINDER_FIRED = 'reminder:fired'
-
-
-rules = []
+rules = (rule_tickler_update_text_priority, )
 
 
 class TodoistHandler(RequestHandler):
@@ -69,7 +47,7 @@ class TodoistHandler(RequestHandler):
     def post(self, *args, **kwargs):
         print(self.json)
         for rule in rules:
-            rule(self.client, self.json)
+            rule(self.client, self.json['event_name'], self.json['event_data'])
             self.client.commit()
             self.client.sync()
         self.write('')
