@@ -1,3 +1,6 @@
+import functools
+
+
 class Events(object):
     ITEM_ADDED = 'item:added'
     ITEM_UPDATED = 'item:updated'
@@ -34,10 +37,20 @@ class Projects(object):
     ROUTINE_DAILY = 'Daily'
     ROUTINE_WEEKLY = 'Weekly'
     ROUTINE_MONTHLY = 'Monthly'
+    HOME = 'Home'
+    WORK = 'Work'
+    WORK_WIP = 'WIP'
+    WORK_WIP_DEVOPS = 'DevOps'
+    WORK_VISION = 'Vision'
+    WORK_RESEARCH = 'Research'
+    WORK_KOMSARY = 'Komsary'
+    WORK_ICEBOX = 'Icebox'
 
 
 class Labels(object):
     ROUTINE = 'routine'
+    HOME = 'home'
+    WORK = 'work'
 
 
 def has_item_changed(event_name):
@@ -72,22 +85,51 @@ def rule_tickler_update_text_priority(client, event_name, event):
            and update_content_and_priority(event)
 
 
-def rule_routine_add_label(client, event_name, event):
-    """ Add routine label to all the routine tasks """
-    ROUTINE_PROJECTS = (
-        Projects.ROUTINE,
-        Projects.ROUTINE_DAILY,
-        Projects.ROUTINE_WEEKLY,
-        Projects.ROUTINE_MONTHLY,
-    )
-
+def rule_add_project_label(client, event_name, event, projects=None, label=None):
+    """ Add a label to every task in given projects """
     def add_routine_label(event):
         item = client.items.get_by_id(event['id'])
-        label_id = client.labels.all(lambda x: x['name'] == Labels.ROUTINE)[0]['id']
+        label_id = client.labels.all(lambda x: x['name'] == label)[0]['id']
 
         if label_id not in item['labels']:
             item.update(labels=item['labels'] + [label_id, ])
 
-    return has_item_changed(event_name) \
-           and is_project_in(client, event, ROUTINE_PROJECTS) \
+    return projects is not None \
+           and label is not None \
+           and has_item_changed(event_name) \
+           and is_project_in(client, event, projects) \
            and add_routine_label(event)
+
+
+rule_routine_add_label = functools.partial(
+    rule_add_project_label,
+    projects=(
+        Projects.ROUTINE,
+        Projects.ROUTINE_DAILY,
+        Projects.ROUTINE_WEEKLY,
+        Projects.ROUTINE_MONTHLY,
+    ),
+    label=Labels.ROUTINE,
+)
+
+rule_home_add_label = functools.partial(
+    rule_add_project_label,
+    projects=(
+        Projects.HOME,
+    ),
+    label=Labels.HOME,
+)
+
+rule_work_add_label = functools.partial(
+    rule_add_project_label,
+    projects=(
+        Projects.WORK,
+        Projects.WORK_WIP,
+        Projects.WORK_WIP_DEVOPS,
+        Projects.WORK_VISION,
+        Projects.WORK_RESEARCH,
+        Projects.WORK_KOMSARY,
+        Projects.WORK_ICEBOX,
+    ),
+    label=Labels.WORK,
+)

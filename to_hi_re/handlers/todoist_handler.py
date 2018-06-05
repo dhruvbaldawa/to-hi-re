@@ -10,14 +10,19 @@ import todoist
 from tornado.web import RequestHandler
 from tornado.options import options, define
 
-from to_hi_re.rules.todoist import rule_tickler_update_text_priority, rule_routine_add_label
+from to_hi_re.rules.todoist import (
+    rule_tickler_update_text_priority,
+    rule_routine_add_label,
+    rule_home_add_label,
+    rule_work_add_label,
+)
 
 define('todoist_access_token')
 define('todoist_client_secret')
 define('todoist_client_id')
 
 
-rules = (rule_tickler_update_text_priority, rule_routine_add_label)
+rules = (rule_tickler_update_text_priority, rule_routine_add_label, rule_home_add_label, rule_work_add_label)
 
 
 class TodoistHandler(RequestHandler):
