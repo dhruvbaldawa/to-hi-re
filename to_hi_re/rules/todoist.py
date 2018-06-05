@@ -85,7 +85,7 @@ def rule_tickler_update_text_priority(client, event_name, event):
            and update_content_and_priority(event)
 
 
-def rule_add_project_label(client, event_name, event, projects=None, label=None):
+def _rule_add_project_label(client, event_name, event, projects=None, label=None):
     """ Add a label to every task in given projects """
     def add_routine_label(event):
         item = client.items.get_by_id(event['id'])
@@ -102,7 +102,7 @@ def rule_add_project_label(client, event_name, event, projects=None, label=None)
 
 
 rule_routine_add_label = functools.partial(
-    rule_add_project_label,
+    _rule_add_project_label,
     projects=(
         Projects.ROUTINE,
         Projects.ROUTINE_DAILY,
@@ -113,7 +113,7 @@ rule_routine_add_label = functools.partial(
 )
 
 rule_home_add_label = functools.partial(
-    rule_add_project_label,
+    _rule_add_project_label,
     projects=(
         Projects.HOME,
     ),
@@ -121,7 +121,7 @@ rule_home_add_label = functools.partial(
 )
 
 rule_work_add_label = functools.partial(
-    rule_add_project_label,
+    _rule_add_project_label,
     projects=(
         Projects.WORK,
         Projects.WORK_WIP,
