@@ -1,6 +1,9 @@
+#!/usr/bin/env python
+
 import tornado.ioloop
 import tornado.web
 import tornado.options
+from tornado.httpserver import HTTPServer
 
 from to_hi_re.handlers.todoist_handler import TodoistHandler, TodoistLoginHandler
 
@@ -20,6 +23,10 @@ def make_app():
 
 if __name__ == "__main__":
     app = make_app()
-    app.listen(6666)
+
+    server = HTTPServer(app)
+    server.bind(6666)
+    server.start(1)
+
     tornado.options.parse_config_file("settings.conf")
     tornado.ioloop.IOLoop.current().start()

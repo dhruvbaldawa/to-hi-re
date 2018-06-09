@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 requests = "==2.11.1"
 todoist-python = "==7.0.13"
-tornado = "==4.4.1"
+tornado = "==5.0.2"
 
 [dev-packages]
 ipython = "*"
