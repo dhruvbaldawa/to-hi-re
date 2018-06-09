@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
+from settings import settings
+
 import tornado.ioloop
 import tornado.web
-import tornado.options
+from tornado.options import options
 from tornado.httpserver import HTTPServer
 
 from to_hi_re.handlers.todoist_handler import TodoistHandler, TodoistLoginHandler
@@ -13,20 +15,20 @@ class MainHandler(tornado.web.RequestHandler):
         self.write("ping")
 
 
-def make_app():
+def make_app(settings):
     return tornado.web.Application([
         (r"/", MainHandler),
         (r"/todoist/webhook/?", TodoistHandler),
         (r"/todoist/oauth_token/?", TodoistLoginHandler),
-    ], debug=True)
+    ], **settings)
 
 
 if __name__ == "__main__":
-    app = make_app()
+    app = make_app(settings)
+    tornado.options.parse_config_file("settings.conf")
 
     server = HTTPServer(app)
-    server.bind(6666)
+    server.bind(options.port)
     server.start(1)
 
-    tornado.options.parse_config_file("settings.conf")
     tornado.ioloop.IOLoop.current().start()
