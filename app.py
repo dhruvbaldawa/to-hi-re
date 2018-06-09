@@ -25,7 +25,6 @@ def make_app(settings):
 
 if __name__ == "__main__":
     app = make_app(settings)
-    tornado.options.parse_config_file("settings.conf")
 
     server = HTTPServer(app)
     server.bind(options.port)
