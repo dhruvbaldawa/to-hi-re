@@ -12,12 +12,19 @@ from tornado.options import options
 
 from to_hi_re.rules.todoist import (
     rule_tickler_update_text_priority,
+    rule_update_timebased_priority,
     rule_routine_add_label,
     rule_home_add_label,
     rule_work_add_label,
 )
 
-rules = (rule_tickler_update_text_priority, rule_routine_add_label, rule_home_add_label, rule_work_add_label)
+rules = (
+    rule_tickler_update_text_priority,
+    rule_update_timebased_priority,
+    rule_routine_add_label,
+    rule_home_add_label,
+    rule_work_add_label,
+)
 
 
 class TodoistHandler(RequestHandler):

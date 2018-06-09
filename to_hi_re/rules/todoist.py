@@ -1,5 +1,7 @@
 import functools
 
+import maya
+
 
 class Events(object):
     ITEM_ADDED = 'item:added'
@@ -107,6 +109,37 @@ def _rule_add_project_label(client, event_name, event, projects=None, label=None
            and add_routine_label(event)
 
 
+def rule_update_timebased_priority(client, event_name, event):
+    """ Update priorities of my tasks based on their timings """
+    # 6AM - 12PM: orange
+    # 12PM - 6PM: yellow
+    MORNING_START, MORNING_END = maya.parse('06:00').datetime(), maya.parse('11:59').datetime()
+    EVENING_START, EVENING_END = maya.parse('12:00').datetime(), maya.parse('18:00').datetime()
+
+    def get_user_timezone(client):
+        return client.user.get()['tz_info']['timezone']
+
+    def has_due_date(event):
+        return event['due_date_utc'] is not None
+
+    def update_priority(client, event):
+        item = client.items.get_by_id(event['id'])
+        tz = get_user_timezone(client)
+        local_event_time = maya.parse(event['due_date_utc']).datetime(to_timezone=tz)
+
+        if MORNING_START.time() <= local_event_time.time() <= MORNING_END.time():
+            item.update(priority=Priorities.URGENT)
+
+        elif EVENING_START.time() <= local_event_time.time() <= EVENING_END.time():
+            item.update(priority=Priorities.LESS_URGENT)
+
+    return has_item_changed(event_name) \
+           and has_item_changed(event_name) \
+           and is_not_section(event) \
+           and has_due_date(event) \
+           and update_priority(client, event)
+
+
 rule_routine_add_label = functools.partial(
     _rule_add_project_label,
     projects=(
@@ -118,6 +151,7 @@ rule_routine_add_label = functools.partial(
     label=Labels.ROUTINE,
 )
 
+
 rule_home_add_label = functools.partial(
     _rule_add_project_label,
     projects=(
@@ -125,6 +159,7 @@ rule_home_add_label = functools.partial(
     ),
     label=Labels.HOME,
 )
+
 
 rule_work_add_label = functools.partial(
     _rule_add_project_label,
