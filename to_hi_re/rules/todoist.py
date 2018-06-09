@@ -127,10 +127,12 @@ def rule_update_timebased_priority(client, event_name, event):
         tz = get_user_timezone(client)
         local_event_time = maya.parse(event['due_date_utc']).datetime(to_timezone=tz)
 
-        if MORNING_START.time() <= local_event_time.time() <= MORNING_END.time():
+        if MORNING_START.time() <= local_event_time. time() <= MORNING_END.time() \
+           and item['priority'] != Priorities.URGENT:
             item.update(priority=Priorities.URGENT)
 
-        elif EVENING_START.time() <= local_event_time.time() <= EVENING_END.time():
+        elif EVENING_START.time() <= local_event_time.time() <= EVENING_END.time() \
+             and item['priority'] != Priorities.LESS_URGENT:
             item.update(priority=Priorities.LESS_URGENT)
 
     return has_item_changed(event_name) \
