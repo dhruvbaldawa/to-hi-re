@@ -110,7 +110,7 @@ def _rule_add_project_label(client, event_name, event, projects=None, label=None
 
 
 def rule_update_timebased_priority(client, event_name, event):
-    """ Update priorities of my tasks based on their timings """
+    """ Update priorities of my tasks based on their timings, except for very urgent tasks """
     # 6AM - 12PM: orange
     # 12PM - 6PM: yellow
     MORNING_START, MORNING_END = maya.parse('06:00').datetime(), maya.parse('11:59').datetime()
@@ -128,11 +128,13 @@ def rule_update_timebased_priority(client, event_name, event):
         local_event_time = maya.parse(event['due_date_utc']).datetime(to_timezone=tz)
 
         if MORNING_START.time() <= local_event_time. time() <= MORNING_END.time() \
-           and item['priority'] != Priorities.URGENT:
+           and item['priority'] != Priorities.URGENT \
+           and item['priority'] != Priorities.VERY_URGENT:
             item.update(priority=Priorities.URGENT)
 
         elif EVENING_START.time() <= local_event_time.time() <= EVENING_END.time() \
-             and item['priority'] != Priorities.LESS_URGENT:
+             and item['priority'] != Priorities.LESS_URGENT \
+             and item['priority'] != Priorities.VERY_URGENT:
             item.update(priority=Priorities.LESS_URGENT)
 
     return has_item_changed(event_name) \
