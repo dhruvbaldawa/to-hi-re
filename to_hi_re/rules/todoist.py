@@ -65,6 +65,10 @@ def is_project_in(client, event, project_names):
     return any(is_project(client, event, project_name) for project_name in project_names)
 
 
+def is_not_section(event):
+    return not event['content'].startswith('*') and not event['content'].endswith(':')
+
+
 def rule_tickler_update_text_priority(client, event_name, event):
     """ Add prefix to all tickler tasks and set their priority to very urgent """
     TICKLER_PREFIX = '!![TICKLER]!!'
@@ -81,6 +85,7 @@ def rule_tickler_update_text_priority(client, event_name, event):
             item.update(priority=TICKLER_PRIORITY)
 
     return has_item_changed(event_name) \
+           and is_not_section(event) \
            and is_project(client, event, Projects.TICKLER_FILE) \
            and update_content_and_priority(event)
 
@@ -97,6 +102,7 @@ def _rule_add_project_label(client, event_name, event, projects=None, label=None
     return projects is not None \
            and label is not None \
            and has_item_changed(event_name) \
+           and is_not_section(event) \
            and is_project_in(client, event, projects) \
            and add_routine_label(event)
 
