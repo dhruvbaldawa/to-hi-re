@@ -40,6 +40,7 @@ class Projects(object):
     ROUTINE_WEEKLY = 'Weekly'
     ROUTINE_MONTHLY = 'Monthly'
     HOME = 'Home'
+    HOME_BELLS = 'Bells'
     WORK = 'Work'
     WORK_WIP = 'WIP'
     WORK_WIP_DEVOPS = 'DevOps'
@@ -160,6 +161,7 @@ rule_home_add_label = functools.partial(
     _rule_add_project_label,
     projects=(
         Projects.HOME,
+        Projects.HOME_BELLS,
     ),
     label=Labels.HOME,
 )
