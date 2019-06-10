@@ -49,12 +49,19 @@ class Projects(object):
     WORK_KOMSARY = 'Komsary'
     WORK_ICEBOX = 'Icebox'
     WORK_NOTES = 'Notes'
+    GOALS = 'Goals'
+    GOALS_LONG_TERM = 'Long term'
+    GOALS_LEARNING = 'Learning'
+    GOALS_TRAVEL = 'Travel'
+    GOALS_BRAND = 'Brand'
+    GOALS_FIT = 'Fit'
 
 
 class Labels(object):
     ROUTINE = 'routine'
     HOME = 'home'
     WORK = 'work'
+    GOALS = 'goal'
 
 
 def has_item_changed(event_name):
@@ -181,4 +188,18 @@ rule_work_add_label = functools.partial(
         Projects.WORK_NOTES,
     ),
     label=Labels.WORK,
+)
+
+
+rule_goals_add_label = functools.partial(
+    _rule_add_project_label,
+    projects=(
+        Projects.GOALS,
+        Projects.GOALS_LONG_TERM,
+        Projects.GOALS_LEARNING,
+        Projects.GOALS_TRAVEL,
+        Projects.GOALS_BRAND,
+        Projects.GOALS_FIT,
+    ),
+    label=Labels.GOALS,
 )

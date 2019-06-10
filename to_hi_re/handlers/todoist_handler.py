@@ -16,6 +16,7 @@ from to_hi_re.rules.todoist import (
     rule_routine_add_label,
     rule_home_add_label,
     rule_work_add_label,
+    rule_goals_add_label,
 )
 
 rules = (
@@ -24,6 +25,7 @@ rules = (
     rule_routine_add_label,
     rule_home_add_label,
     rule_work_add_label,
+    rule_goals_add_label,
 )
 
 
