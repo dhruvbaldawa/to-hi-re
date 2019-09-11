@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 requests = "==2.11.1"
-todoist-python = "==7.0.13"
+todoist-python = "==7.0.16"
 tornado = "==5.0.2"
 maya = "*"
 
