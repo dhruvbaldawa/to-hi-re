@@ -129,12 +129,12 @@ def rule_update_timebased_priority(client, event_name, event):
         return client.user.get()['tz_info']['timezone']
 
     def has_due_date(event):
-        return event['due_date_utc'] is not None
+        return event['due'] is not None
 
     def update_priority(client, event):
         item = client.items.get_by_id(event['id'])
         tz = get_user_timezone(client)
-        local_event_time = maya.parse(event['due_date_utc']).datetime(to_timezone=tz)
+        local_event_time = maya.parse(event['due']['date']).datetime(to_timezone=tz)
 
         if MORNING_START.time() <= local_event_time. time() <= MORNING_END.time() \
            and item['priority'] != Priorities.URGENT \
