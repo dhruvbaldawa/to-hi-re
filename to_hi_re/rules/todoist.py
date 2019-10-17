@@ -40,7 +40,7 @@ class Projects(object):
     ROUTINE_WEEKLY = 'Weekly'
     ROUTINE_MONTHLY = 'Monthly'
     HOME = 'Home'
-    HOME_BELLS = 'Bells'
+    HOME_3710 = '3710'
     WORK = 'Work'
     WORK_WIP = 'WIP'
     WORK_WIP_DEVOPS = 'DevOps'
@@ -48,12 +48,20 @@ class Projects(object):
     WORK_RESEARCH = 'Research'
     WORK_KOMSARY = 'Komsary'
     WORK_ICEBOX = 'Icebox'
+    WORK_NOTES = 'Notes'
+    GOALS = 'Goals'
+    GOALS_LONG_TERM = 'Long term'
+    GOALS_LEARNING = 'Learning'
+    GOALS_TRAVEL = 'Travel'
+    GOALS_BRAND = 'Brand'
+    GOALS_FIT = 'Fit'
 
 
 class Labels(object):
     ROUTINE = 'routine'
     HOME = 'home'
     WORK = 'work'
+    GOALS = 'goal'
 
 
 def has_item_changed(event_name):
@@ -121,12 +129,12 @@ def rule_update_timebased_priority(client, event_name, event):
         return client.user.get()['tz_info']['timezone']
 
     def has_due_date(event):
-        return event['due_date_utc'] is not None
+        return event['due'] is not None
 
     def update_priority(client, event):
         item = client.items.get_by_id(event['id'])
         tz = get_user_timezone(client)
-        local_event_time = maya.parse(event['due_date_utc']).datetime(to_timezone=tz)
+        local_event_time = maya.parse(event['due']['date']).datetime(to_timezone=tz)
 
         if MORNING_START.time() <= local_event_time. time() <= MORNING_END.time() \
            and item['priority'] != Priorities.URGENT \
@@ -161,7 +169,7 @@ rule_home_add_label = functools.partial(
     _rule_add_project_label,
     projects=(
         Projects.HOME,
-        Projects.HOME_BELLS,
+        Projects.HOME_3710,
     ),
     label=Labels.HOME,
 )
@@ -177,6 +185,21 @@ rule_work_add_label = functools.partial(
         Projects.WORK_RESEARCH,
         Projects.WORK_KOMSARY,
         Projects.WORK_ICEBOX,
+        Projects.WORK_NOTES,
     ),
     label=Labels.WORK,
+)
+
+
+rule_goals_add_label = functools.partial(
+    _rule_add_project_label,
+    projects=(
+        Projects.GOALS,
+        Projects.GOALS_LONG_TERM,
+        Projects.GOALS_LEARNING,
+        Projects.GOALS_TRAVEL,
+        Projects.GOALS_BRAND,
+        Projects.GOALS_FIT,
+    ),
+    label=Labels.GOALS,
 )
