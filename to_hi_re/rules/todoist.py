@@ -82,7 +82,7 @@ def is_not_section(event):
 
 def rule_tickler_update_text_priority(client, event_name, event):
     """ Add prefix to all tickler tasks and set their priority to very urgent """
-    TICKLER_PREFIX = '!![TICKLER]!!'
+    TICKLER_PREFIX = '**[TICKLER]**'
     TICKLER_PRIORITY = Priorities.VERY_URGENT
 
     def update_content_and_priority(event):
