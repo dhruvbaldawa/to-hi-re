@@ -6,6 +6,7 @@ import tornado.ioloop
 import tornado.web
 from tornado.options import options
 from tornado.httpserver import HTTPServer
+from tornado.log import enable_pretty_logging
 
 from to_hi_re.handlers.todoist_handler import TodoistHandler, TodoistLoginHandler
 
@@ -24,6 +25,7 @@ def make_app(settings):
 
 
 if __name__ == "__main__":
+    enable_pretty_logging()
     app = make_app(settings)
 
     server = HTTPServer(app)
