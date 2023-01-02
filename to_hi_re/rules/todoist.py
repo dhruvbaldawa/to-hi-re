@@ -69,7 +69,7 @@ def has_item_changed(event_name):
 
 
 def is_project(client, event, project_name):
-    return project_name in client.projects.get_by_id(event['project_id'])['name']
+    return project_name in client.projects.get(event['project_id'])['name']
 
 
 def is_project_in(client, event, project_names):
@@ -86,7 +86,7 @@ def rule_tickler_update_text_priority(client, event_name, event):
     TICKLER_PRIORITY = Priorities.VERY_URGENT
 
     def update_content_and_priority(event):
-        item = client.items.get_by_id(event['id'])
+        item = client.items.get(event['id'])
         if not item['content'].startswith(TICKLER_PREFIX):
             item.update(
                 content='{prefix} {content}'.format(prefix=TICKLER_PREFIX, content=item['content']),
@@ -104,7 +104,7 @@ def rule_tickler_update_text_priority(client, event_name, event):
 def _rule_add_project_label(client, event_name, event, projects=None, label=None):
     """ Add a label to every task in given projects """
     def add_routine_label(event):
-        item = client.items.get_by_id(event['id'])
+        item = client.items.get(event['id'])
         label_id = client.labels.all(lambda x: x['name'] == label)[0]['id']
 
         if label_id not in item['labels']:
@@ -132,7 +132,7 @@ def rule_update_timebased_priority(client, event_name, event):
         return event['due'] is not None
 
     def update_priority(client, event):
-        item = client.items.get_by_id(event['id'])
+        item = client.items.get(event['id'])
         tz = get_user_timezone(client)
         local_event_time = maya.parse(event['due']['date']).datetime(to_timezone=tz)
 

@@ -20,20 +20,9 @@ rules = (
     rule_routine_add_label,
 )
 
-
-class MyTodoistAPI(todoist.TodoistAPI):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.api_endpoint = 'https://api.todoist.com'
-
-    def get_api_url(self):
-        return '{}/sync/v8/'.format(self.api_endpoint)
-
-
-
 class TodoistHandler(RequestHandler):
     def initialize(self):
-        self.client = MyTodoistAPI(options.todoist_access_token)
+        self.client = todoist.TodoistAPI(options.todoist_access_token)
         self.client.sync()
 
     def _verify_hmac(self, body, secret, received_signature):
