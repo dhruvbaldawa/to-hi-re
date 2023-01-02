@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "cd61fbe714c73c4bc79d5a0fb7e69e24c723dd1047b928a9919d6626760117a1"
+            "sha256": "3ad67143f854352dc1b212885a6caf1cad16bde6932daa24f7bf5fc3203fb0be"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,14 @@
         ]
     },
     "default": {
+        "attrs": {
+            "hashes": [
+                "sha256:29e95c7f6778868dbd49170f98f8818f78f3dc5e0e37c0b1f474e3561b240836",
+                "sha256:c9227bfc2f01993c03f68db37d1d15c9690188323c067c641f1a35ca58185f99"
+            ],
+            "markers": "python_version >= '3.6'",
+            "version": "==22.2.0"
+        },
         "certifi": {
             "hashes": [
                 "sha256:35824b4c3a97115964b408844d64aa14db1cc518f6562e8d7261699d1350a9e3",
@@ -238,13 +246,13 @@
             ],
             "version": "==0.2.4"
         },
-        "todoist-python": {
+        "todoist-api-python": {
             "hashes": [
-                "sha256:0f4d402137f02f415f99acaa9d7ab24016687202dec9a191aee4745a9ce67dc6",
-                "sha256:aec728f82bfa5b8f83610a4f53c4e30b5196fe4d541da500777d5f13dd2692cd"
+                "sha256:af52cbc8f183dff79d22929dbab75e1d840da3e10e0571e8ff84e8fc74d6fcf8",
+                "sha256:ec8567649e35c244a44608b5e0c125aabf9e567c0f2df55959af39024a856e25"
             ],
             "index": "pypi",
-            "version": "==8.1.0"
+            "version": "==2.0.2"
         },
         "tornado": {
             "hashes": [

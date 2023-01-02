@@ -69,7 +69,7 @@ def has_item_changed(event_name):
 
 
 def is_project(client, event, project_name):
-    return project_name in client.projects.get(event['project_id'])['name']
+    return project_name in client.get_project(project_id=event['project_id']).name
 
 
 def is_project_in(client, event, project_names):
@@ -86,71 +86,39 @@ def rule_tickler_update_text_priority(client, event_name, event):
     TICKLER_PRIORITY = Priorities.VERY_URGENT
 
     def update_content_and_priority(event):
-        item = client.items.get(event['id'])
-        if not item['content'].startswith(TICKLER_PREFIX):
-            item.update(
-                content='{prefix} {content}'.format(prefix=TICKLER_PREFIX, content=item['content']),
+        item = client.get_task(task_id=event['id'])
+        if not item.content.startswith(TICKLER_PREFIX):
+            client.update_task(
+                task_id=event['id'],
+                content='{prefix} {content}'.format(prefix=TICKLER_PREFIX, content=item.content),
             )
 
-        if item['priority'] != TICKLER_PRIORITY:
-            item.update(priority=TICKLER_PRIORITY)
+        if item.priority != TICKLER_PRIORITY:
+            client.update_task(
+                task_id=event['id'],
+                priority=TICKLER_PRIORITY,
+            )
 
     return has_item_changed(event_name) \
-           and is_not_section(event) \
-           and is_project(client, event, Projects.TICKLER_FILE) \
-           and update_content_and_priority(event)
+        and is_not_section(event) \
+        and is_project(client, event, Projects.TICKLER_FILE) \
+        and update_content_and_priority(event)
 
 
 def _rule_add_project_label(client, event_name, event, projects=None, label=None):
     """ Add a label to every task in given projects """
-    def add_routine_label(event):
-        item = client.items.get(event['id'])
-        label_id = client.labels.all(lambda x: x['name'] == label)[0]['id']
+    def add_label(event):
+        item = client.get_task(task_id=event['id'])
 
-        if label_id not in item['labels']:
-            item.update(labels=item['labels'] + [label_id, ])
+        if label not in item.labels:
+            client.update_task(task_id=event['id'], labels=item.labels + [label, ])
 
     return projects is not None \
-           and label is not None \
-           and has_item_changed(event_name) \
-           and is_not_section(event) \
-           and is_project_in(client, event, projects) \
-           and add_routine_label(event)
-
-
-def rule_update_timebased_priority(client, event_name, event):
-    """ Update priorities of my tasks based on their timings, except for very urgent tasks """
-    # 6AM - 12PM: orange
-    # 12PM - 6PM: yellow
-    MORNING_START, MORNING_END = maya.parse('06:00').datetime(), maya.parse('11:59').datetime()
-    EVENING_START, EVENING_END = maya.parse('12:00').datetime(), maya.parse('18:00').datetime()
-
-    def get_user_timezone(client):
-        return client.user.get()['tz_info']['timezone']
-
-    def has_due_date(event):
-        return event['due'] is not None
-
-    def update_priority(client, event):
-        item = client.items.get(event['id'])
-        tz = get_user_timezone(client)
-        local_event_time = maya.parse(event['due']['date']).datetime(to_timezone=tz)
-
-        if MORNING_START.time() <= local_event_time. time() <= MORNING_END.time() \
-           and item['priority'] != Priorities.URGENT \
-           and item['priority'] != Priorities.VERY_URGENT:
-            item.update(priority=Priorities.URGENT)
-
-        elif EVENING_START.time() <= local_event_time.time() <= EVENING_END.time() \
-             and item['priority'] != Priorities.LESS_URGENT \
-             and item['priority'] != Priorities.VERY_URGENT:
-            item.update(priority=Priorities.LESS_URGENT)
-
-    return has_item_changed(event_name) \
-           and has_item_changed(event_name) \
-           and is_not_section(event) \
-           and has_due_date(event) \
-           and update_priority(client, event)
+        and label is not None \
+        and has_item_changed(event_name) \
+        and is_not_section(event) \
+        and is_project_in(client, event, projects) \
+        and add_label(event)
 
 
 rule_routine_add_label = functools.partial(

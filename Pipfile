@@ -5,9 +5,9 @@ name = "pypi"
 
 [packages]
 requests = ">=2.20.0"
-todoist-python = "==8.1.0"
 tornado = "==6.2.0"
 maya = "*"
+todoist-api-python = "==2.0.2"
 
 [dev-packages]
 ipython = "*"

@@ -5,10 +5,11 @@ import base64
 
 import requests
 import tornado.log
-import todoist
 
 from tornado.web import RequestHandler
 from tornado.options import options
+
+from todoist_api_python.api import TodoistAPI
 
 from to_hi_re.rules.todoist import (
     rule_tickler_update_text_priority,
@@ -22,8 +23,7 @@ rules = (
 
 class TodoistHandler(RequestHandler):
     def initialize(self):
-        self.client = todoist.TodoistAPI(options.todoist_access_token)
-        self.client.sync()
+        self.client = TodoistAPI(options.todoist_access_token)
 
     def _verify_hmac(self, body, secret, received_signature):
         received_signature = bytes(received_signature, 'utf-8')
@@ -32,9 +32,11 @@ class TodoistHandler(RequestHandler):
         return signature == received_signature
 
     def prepare(self):
-        if not self._verify_hmac(self.request.body,
-                                 options.todoist_client_secret,
-                                 self.request.headers['X-Todoist-Hmac-SHA256']):
+        if not self._verify_hmac(
+            self.request.body,
+            options.todoist_client_secret,
+            self.request.headers['X-Todoist-Hmac-SHA256'],
+        ):
             tornado.log.app_log.error('HMAC mismatch occured')
             self.finish()
 
@@ -48,8 +50,6 @@ class TodoistHandler(RequestHandler):
         print(self.json)
         for rule in rules:
             rule(self.client, self.json['event_name'], self.json['event_data'])
-            self.client.commit()
-            self.client.sync()
         self.write('')
 
 
